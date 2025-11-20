@@ -1,6 +1,19 @@
+Riccardo DAFFARA
+
 # AF-KLM Data Analysis Revenues for the first week of December 2025
 
 This script processes flight data for Air France and KLM to calculate revenue, load factors, and generate visualization plots for the first week of December 2025.
+
+You will find in the repository:
+- 'files_usecase2' folder containing the data files
+- 'main.ipynb' Jupyter Notebook with the code and explanations step by step
+- 'answers.txt' file with the answers to the questions of the use case n°2
+- 'main.py' script (same operations as in the notebook but organized into functions)
+- 'README.md' (this file)
+- 'Technical Test on Data Quality.pdf' file with the use case questions
+
+
+To run the main.py script, follow the steps below:
 
 ## 1. Setup
 
