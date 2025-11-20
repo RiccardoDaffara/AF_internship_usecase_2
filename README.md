@@ -12,6 +12,7 @@ You will find in the repository:
 - 'README.md' (this file)
 - 'Technical Test on Data Quality.pdf' file with the use case questions
 
+N.B. To check the work done step by step, please use the notebook. You will find the operations requested by the instruction in a chronological order in order to resolve the case. Also, you can check the answers.txt file to have more explanations.
 
 To run the main.py script, follow the steps below:
 
