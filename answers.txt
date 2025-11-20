@@ -1,0 +1,83 @@
+Answers to questions of case 2:
+
+1. The capacity.txt file is not directly readable as there is an inconsistence in the number of columns.
+We can see that the file has 10 columns but at line 50, there are 2 empty columns added. This is an error we need to fix.
+For opening the file we can then read the first line of the file to extract the column names. Then, we read the entire file
+but only the columns extracted from the first line (so the first 4 columns). Then at line 50, the extra 2 columns will not be considered.
+
+2. In the capacity.txt file we have 4 columns:
+- 'flight_number' corresponding to the flight number (letters and numbers ; AF for Air France, KL for KLM)
+- 'date' corresponding to the date of the flight
+- 'seats' corresponding to the number of seats available onboard (full capacity of the plane)
+- 'pax' corresponding to the number of passengers onboard
+
+'seats' and 'pax' are integer numbers (we can't have a fraction of a seat or a passenger). Then their type should be INT and not FLOAT.
+We can fix this by using the pandas function 'astype'.
+N.B. 'flight_number' is of type object and can't be an INT as it is a combination of characters and numbers.
+
+3. 'date' should be a DATE type. The problem is that at line 85, there is a date written in full letters instead of the format YYYY-MM-DD.
+We need to correct this. We can use the pandas function 'to_datetime' to convert the date to the correct format.
+
+4. We can open the revenue file using pd.read_csv. The separator that is used is the tabulation ('\t').
+We need to define the type of 'date' column to 'datetime' (pd.to_datetime).
+To compute the total revenue over the first week of December, we can use the following command:
+revenue_december_firstweek = df_revenues['revenue'].sum()
+No need to filter by date as the file contains only data for the first week of December.
+
+5. We use the headers provided to read the flight file (again using pd.read_csv). The separator is the tabulation ('\t').
+We have to define the type of 'date' column to 'datetime' (pd.to_datetime) but we can notice that the year is missing, so we concatenate it with the month and day.
+To list the different airplanes, we filter the dataframe on the 'plane' column and we apply the 'unique' function to get the unique values for the planes.
+
+6. Merging the 3 dataframes together is done using the 'merge' function. We need to specify the columns to merge on 'flight_number' and 'date' columns and the type of join is 'inner'
+to keep only the common matching lines in the different dataframes.
+First we merge the capacity dataframe with the revenues dataframe and then we merge the merged dataframe with the flights dataframe.
+The problem is that the names of the 'date' and 'flight_number' columns are the same in the 3 dataframes.
+We use the 'left_on' and 'right_on' arguments to specify the columns to use for the join from each dataframe.
+Then, we remove the duplicated 'date' and 'flight_number' columns using the 'drop' function to keep just one instance of each.
+
+We compute the capacity of the Boeing 77-300 using the following command:
+df_final.loc[df_final['plane']  == 'Boeing 777-300', 'seats'].values[0]
+N.B. The primary purpose of .loc in Pandas is to select or access data within a DataFrame strictly based on the labels
+of the rows and columns, not their integer position.
+
+We compute the average number of pax on the first week of December for the route AMS-JFK, on both directions, using the following command:
+df_final.loc[((df_final['origin'] == 'AMS') & (df_final['destination'] == 'JFK')) | ((df_final['origin'] == 'JFK') & (df_final['destination'] == 'AMS')), 'pax'].mean().round(2)
+
+7.
+Revenue of AF on the 5th of December: df_final.loc[(df_final['carrier'] == 'AF') & (df_final['date'] == '2025-12-05'), 'revenue'].sum()
+Total revenue of KLM: df_final.loc[df_final['carrier'] == 'KL', 'revenue'].sum()
+Total revneue of AF: df_final.loc[df_final['carrier'] == 'AF', 'revenue'].sum()
+
+Values:
+- Revenue of AF on the 5th of December: 7199770.55 €
+- Total revenue of KLM: 50341321.44 €
+- Total revneue of AF: 51395266.31 €
+- Total revenue of AF + KLM: 50341321.44 + 51395266.31 = 101736587.75 €
+
+- Total revenue in the df_revenues dataframe: 105523274.26 €
+
+- Difference between total revenues and AF-KLM revenues: 105523274.26 € - 101736587.75 = 3786686.51 €
+
+We can notice that the total revenue of AF-KLM for the first week of December is lower than the total amount of revenue
+in the df_revenues dataframe. This is because the df_revenues dataframe contains also 18 more flights from other carriers
+than AF-KLM (probably Delta Airline that is also part of SkyTeam alliance as the indicators are DL).
+
+To prove that, we compute the revenues of the flights that are not operated by AF-KLM:
+We create a mask for AF-KLM flights: 'mask_af_klm' = (df_revenues['FlightNumber'].str.startswith('A')) | (df_revenues['FlightNumber'].str.startswith('K'))
+
+We filter the df_revenues using the mask to only keep the flights that are not operated by AF-KLM:
+other_flights_revenues = df_revenues[~mask_af_klm]['revenue'].sum()
+
+Total is: 3786686.51 € that corresponds to the difference between the total revenues and the revenues of AF-KLM flights.
+
+
+9.
+SELECT
+    AVG(r.revenue) AS average_revenue,
+    STDDEV(r.revenue) AS stddev_revenue
+FROM
+    revenues r
+JOIN
+    capacities c ON r.FlightNumber = c.flight_number AND r.flight_date = c.date
+WHERE
+    c.seats > 290;
